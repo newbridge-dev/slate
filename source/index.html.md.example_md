@@ -24,7 +24,7 @@ meta:
 
 Status: Working Draft \
 Author: Igor Pisarenko \
-Date: 2023-08-23 \
+Date: 2023-06-30 \
 Version: 1.0
 
 
@@ -39,22 +39,21 @@ A subscription request can send only a single subscription key.
 Examples:
 
 {
-  "msg" : "subscription",
+  "msg" : "Subscription",
   "ts" : 1669032206385873,
   "seqn" : 177,
   "op" : "sub",
-  "req-id" : 1,
-  "send-interval-msec" : 1000,
-  "stream" : "trade",
+  "reqId" : 1,
+  "stream" : "BestBidAsk",
   "pattern" : "BTC*"
 }
 
 {
-  "msg" : "subscription",
+  "msg" : "Subscription",
   "ts" : 1669032206385873,
   "seqn" : 177,
   "op" : "unsub",
-  "stream" : "orderbook-snapshot",
+  "stream" : "OrderbookSnapshot",
   "pattern" : "BTC*",
   "depth" : 10
 }
@@ -79,7 +78,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message type: “subscription”
+   <td>Message type: “Subscription”
    </td>
   </tr>
   <tr>
@@ -97,7 +96,7 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Client’s sequence number (max: 16 digits)
    </td>
@@ -113,7 +112,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>req-id
+   <td>reqId
    </td>
    <td>int32
    </td>
@@ -143,23 +142,13 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>send-interval-msec
+   <td>interval
    </td>
    <td>int32
    </td>
    <td>N
    </td>
-   <td>sending interval [msec]; real-time, if not presented
-   </td>
-  </tr>
-  <tr>
-   <td>interval-sec
-   </td>
-   <td>int32
-   </td>
-   <td>N
-   </td>
-   <td>interval (candle subscription only), available intervals [sec]: 1, 60, 3600, 86400
+   <td>Interval (Kline subscription only), available intervals [sec]: 1, 60, 3600, 86400
    </td>
   </tr>
   <tr>
@@ -169,7 +158,7 @@ Examples:
    </td>
    <td>N
    </td>
-   <td>Order book snapshot depth (orderbook-snapshot subscription only): 5, 10, 20
+   <td>Order book snapshot depth (OrderbookSnapshot subscription only): 5, 10, 20
    </td>
   </tr>
 </table>
@@ -181,28 +170,28 @@ A subscription reply may indicate the success or error.
 Examples:
 
 {
-  "msg" : "subscription-reply",
+  "msg" : "SubscriptionReply",
   "ts" : 1669032206385873,
   "seqn" : 277,
-  "req-id" : 1,
+  "reqId" : 1,
   "op" : "sub",
-  "stream" : "orderbook-snapshot",
-  "pattern" : "*",
+  "stream" : "OrderbookSnapshot",
+  "pattern" : "BTCU*",
   "depth" : 20,
   "result" : "success”
 }
 
 {
-  "msg" : "subscription-reply",
+  "msg" : "SubscriptionReply",
   "ts" : 1669032206385873,
   "seqn" : 277,
   "op" : "unsub",
-  "stream" : "candle",
+  "stream" : "Kline",
   "pattern" : "BTCUS",
-  "interval-sec" : 3600,
+  "interval" : 3600,
   "result" : "error",
-  "err-code" : 48,
-  "err-msg" : "Invalid subscription: pattern=BTCUS"
+  "errCode" : 48,
+  "errMessage" : "Invalid subscription: pattern=BTCUS"
 }
 ```
 
@@ -224,7 +213,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message type: “subscription-reply”
+   <td>Message type: “SubscriptionReply”
    </td>
   </tr>
   <tr>
@@ -242,9 +231,9 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
@@ -258,7 +247,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>req-id
+   <td>reqId
    </td>
    <td>int32
    </td>
@@ -278,23 +267,13 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>send-interval-msec
-   </td>
-   <td>int32
-   </td>
-   <td>Y
-   </td>
-   <td>sending interval [msec]
-   </td>
-  </tr>
-  <tr>
-   <td>interval-sec
+   <td>interval
    </td>
    <td>int32
    </td>
    <td>N
    </td>
-   <td>Interval (candle subscription only), available intervals [sec]: 1, 60, 3600, 86400
+   <td>Interval (Kline subscription only), available intervals [sec]: 1, 60, 3600, 86400
    </td>
   </tr>
   <tr>
@@ -304,7 +283,7 @@ Examples:
    </td>
    <td>N
    </td>
-   <td>Order book snapshot depth (orderbook-snapshot subscription only): 5, 10, 20
+   <td>Order book snapshot depth (OrderbookSnapshot subscription only): 5, 10, 20
    </td>
   </tr>
   <tr>
@@ -318,7 +297,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>err-code
+   <td>errCode
    </td>
    <td>int32
    </td>
@@ -328,7 +307,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>err-msg
+   <td>errMessage
    </td>
    <td>string
    </td>
@@ -346,15 +325,15 @@ This is a snapshot message. Missing bid/ask side indicates a single sided book.
 Examples:
 
 {
-  "msg" : "best-bid-ask",
+  "msg" : "BestBidAsk",
   "ts" : 1669026845496043,
-  "stream-seqn" : 10167,
+  "streamSeqn" : 10167,
   "seqn" : 16716,
   "symbol" : "BTCUSDT",
-  "bid-px" : "17567.34",
-  "bid-qty" : "5.76345",
-  "ask-px" : "17567.44",
-  "ask-qty" : "4.18456"
+  "bidPrice" : "17567.34",
+  "bidQty" : "5.76345",
+  "askPrice" : "17567.44",
+  "askQty" : "4.18456"
 }
 
 ```
@@ -377,7 +356,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message name: “best-bid-ask”
+   <td>Message name: “BestBidAsk”
    </td>
   </tr>
   <tr>
@@ -391,11 +370,11 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>stream-seqn
+   <td>streamSeqn
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Market data stream sequence number (max: 16 digits)
    </td>
@@ -405,9 +384,9 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
@@ -421,7 +400,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>bid-px
+   <td>bidPrice
    </td>
    <td>price
    </td>
@@ -431,7 +410,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>bid-qty
+   <td>bidQty
    </td>
    <td>quantity
    </td>
@@ -441,7 +420,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>ask-px
+   <td>askPrice
    </td>
    <td>price
    </td>
@@ -451,7 +430,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>ask-qty
+   <td>askQty
    </td>
    <td>quantity
    </td>
@@ -469,15 +448,15 @@ Individual trade tick message.
 Example:
 
 {
-  "msg" : "trade",
+  "msg" : "Trade",
   "ts" : 1669030387918824,
-  "stream-seqn" : 170167,
+  "streamSeqn" : 170167,
   "seqn" : 180444,
   "symbol" : "BTCUSDT",
-  "trade-id" : "6690303879188244",
-  "trade-px" : "17567.34",
-  "trade-qty" : "1.23978",
-  "maker-buyer" : true
+  "tradeId" : "6690303879188244",
+  "tradePrice" : "17567.34",
+  "tradeQty" : "1.23978",
+  "makerBuyer" : true
 }
 ```
 
@@ -499,7 +478,7 @@ Example:
    </td>
    <td>Y
    </td>
-   <td>Message name: “trade”
+   <td>Message name: “Trade”
    </td>
   </tr>
   <tr>
@@ -513,11 +492,11 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>stream-seqn
+   <td>streamSeqn
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Market data stream sequence number (max: 16 digits)
    </td>
@@ -527,9 +506,9 @@ Example:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
@@ -543,7 +522,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>trade-id
+   <td>tradeId
    </td>
    <td>int64
    </td>
@@ -553,7 +532,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>trade-px
+   <td>tradePrice
    </td>
    <td>price
    </td>
@@ -563,7 +542,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>trade-qty
+   <td>tradeQty
    </td>
    <td>quantity
    </td>
@@ -573,7 +552,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>maker-buyer
+   <td>makerBuyer
    </td>
    <td>boolean
    </td>
@@ -593,9 +572,9 @@ Price level snapshot value: [price, quantity, number of orders].
 Examples:
 
 {
-  "msg" : "orderbook-snapshot",
+  "msg" : "OrderbookSnapshot",
   "ts" : 1669030575242078,
-  "stream-seqn" : 170167,
+  "streamSeqn" : 170167,
   "seqn" : 189282,
   "symbol" : "BTCUSDT",
   "bids" : [
@@ -613,9 +592,9 @@ Examples:
 }
 
 {
-  "msg" : "orderbook-snapshot",
+  "msg" : "OrderbookSnapshot",
   "ts" : 1669030575242078,
-  "stream-seqn" : 170167,
+  "streamSeqn" : 170167,
   "seqn" : 189282,
   "symbol" : "BTCUSDT",
   "bids" : [],
@@ -641,7 +620,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message name: “orderbook-snapshot”
+   <td>Message name: “OrderbookSnapshot”
    </td>
   </tr>
   <tr>
@@ -655,11 +634,11 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>stream-seqn
+   <td>streamSeqn
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Market data stream sequence number (max: 16 digits)
    </td>
@@ -669,9 +648,9 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
@@ -715,9 +694,9 @@ Price level update value: [update command (“n” (new), “c” (change), “d
 Examples:
 
 {
-  "msg" : "orderbook-update",
+  "msg" : "OrderbookUpdate",
   "ts" : 1669031373575253,
-  "stream-seqn" : 170167,
+  "streamSeqn" : 170167,
   "seqn" : 226768,
   "symbol" : "BTCUSDT",
   "bids" : [
@@ -733,9 +712,9 @@ Examples:
 }
 
 {
-  "msg" : "orderbook-update",
+  "msg" : "OrderbookUpdate",
   "ts" : 1669031373575253,
-  "stream-seqn" : 170167,
+  "streamSeqn" : 170167,
   "seqn" : 226768,
   "symbol" : "BTCUSDT",
   "bids" : [],
@@ -764,7 +743,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message name: “orderbook-update”
+   <td>Message name: “OrderbookUpdate”
    </td>
   </tr>
   <tr>
@@ -778,11 +757,11 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>stream-seqn
+   <td>streamSeqn
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Market data stream sequence number (max: 16 digits)
    </td>
@@ -792,9 +771,9 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
@@ -838,7 +817,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>snapshot-first
+   <td>snapshotFirst
    </td>
    <td>boolean
    </td>
@@ -848,7 +827,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>snapshot-last
+   <td>snapshotLast
    </td>
    <td>boolean
    </td>
@@ -859,28 +838,29 @@ Examples:
   </tr>
 </table>
 
-## **Kline/candlestick message.**
-Supported intervals: 1 sec, 1 min, 1 hour and 1 day, which must be specified in the subscription request's "interval" field.
+## **Ticker message.**
+24 hours sliding window ticker message. The interval is 1 sec.
 
 ```
 Example:
 
 {
-  "msg" : "candle",
+  "msg" : "Ticker",
   "ts" : 1669032206998413,
-  "stream-seqn" : 170167,
+  "streamSeqn" : 170167,
   "seqn" : 265977,
-  "start-ts" : 1669032206000000,
-  "end-ts" :   1669032207000000,
-  "interval-sec" : 60,
+  "interval" : 1,
   "symbol" : "BTCUSDT",
-  "open-px" : "20201.15",
-  "last-px" : "20202.34",
-  "high-px" : "20205.87",
-  "low-px" : "20199.98",
-  "num-trades" : 53197,
+  "openPrice" : "20201.15",
+  "lastPrice" : "20202.34",
+  "highPrice" : "20205.87",
+  "lowPrice" : "20199.98",
+  "vwap" : "20202.78",
+  "numTrades" : 53197,
   "volume" : "3909.78543",
-  "quote-volume" : "4760.48"
+  "quoteVolume" : "4760.48",
+  "avgQty" : "0.19852",
+  "lastQty" : "3.00329"
 }
 ```
 
@@ -902,7 +882,7 @@ Example:
    </td>
    <td>Y
    </td>
-   <td>Message name: “candle”
+   <td>Message name: “Ticker”
    </td>
   </tr>
   <tr>
@@ -916,11 +896,11 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>stream-seqn
+   <td>streamSeqn
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Market data stream sequence number (max: 16 digits)
    </td>
@@ -930,13 +910,211 @@ Example:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
-   <td>start-ts
+   <td>interval
+   </td>
+   <td>int32
+   </td>
+   <td>Y
+   </td>
+   <td>Message generation interval [secs]
+   </td>
+  </tr>
+  <tr>
+   <td>symbol
+   </td>
+   <td>string
+   </td>
+   <td>Y
+   </td>
+   <td>Symbol
+   </td>
+  </tr>
+  <tr>
+   <td>openPrice
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Open traded price
+   </td>
+  </tr>
+  <tr>
+   <td>LastPrice
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Last/close traded price
+   </td>
+  </tr>
+  <tr>
+   <td>highPrice
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Highest traded  price
+   </td>
+  </tr>
+  <tr>
+   <td>lowPrice
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Lowest traded  price
+   </td>
+  </tr>
+  <tr>
+   <td>vwap
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Volume weighed average price
+   </td>
+  </tr>
+  <tr>
+   <td>numTrades
+   </td>
+   <td>int32
+   </td>
+   <td>Y
+   </td>
+   <td>Number of trades
+   </td>
+  </tr>
+  <tr>
+   <td>volume
+   </td>
+   <td>quantity
+   </td>
+   <td>Y
+   </td>
+   <td>Total traded volume
+   </td>
+  </tr>
+  <tr>
+   <td>quoteVolume
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Total traded quote volume
+   </td>
+  </tr>
+  <tr>
+   <td>avgQty
+   </td>
+   <td>quantity
+   </td>
+   <td>N
+   </td>
+   <td>Average traded quantity
+   </td>
+  </tr>
+  <tr>
+   <td>lastQty
+   </td>
+   <td>quantity
+   </td>
+   <td>N
+   </td>
+   <td>Last trades quantity
+   </td>
+  </tr>
+</table>
+
+## **Kline/candlestick message.**
+Supported intervals: 1 sec, 1 min, 1 hour and 1 day, which must be specified in the subscription request's "interval" field.
+
+```
+Example:
+
+{
+  "msg" : "Kline",
+  "ts" : 1669032206998413,
+  "streamSeqn" : 170167,
+  "seqn" : 265977,
+  "startTs" : 1669032206000000,
+  "endTs" :   1669032207000000,
+  "interval" : 60,
+  "symbol" : "BTCUSDT",
+  "openPrice" : "20201.15",
+  "lastPrice" : "20202.34",
+  "highPrice" : "20205.87",
+  "lowPrice" : "20199.98",
+  "numTrades" : 53197,
+  "volume" : "3909.78543",
+  "quoteVolume" : "4760.48"
+}
+```
+
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Mandatory</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>msg
+   </td>
+   <td>string
+   </td>
+   <td>Y
+   </td>
+   <td>Message name: “Kline”
+   </td>
+  </tr>
+  <tr>
+   <td>ts
+   </td>
+   <td>timestamp [usec]
+   </td>
+   <td>Y
+   </td>
+   <td>Message generation timestamp (microseconds)
+   </td>
+  </tr>
+  <tr>
+   <td>streamSeqn
+   </td>
+   <td>int64
+   </td>
+   <td>Y
+   </td>
+   <td>Market data stream sequence number (max: 16 digits)
+   </td>
+  </tr>
+  <tr>
+   <td>seqn
+   </td>
+   <td>int64
+   </td>
+   <td>Y
+   </td>
+   <td>Exchange sequence number (max: 16 digits)
+   </td>
+  </tr>
+  <tr>
+   <td>startTs
    </td>
    <td>timestamp [usec]
    </td>
@@ -946,7 +1124,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>end-ts
+   <td>endTs
    </td>
    <td>timestamp [usec]
    </td>
@@ -956,7 +1134,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>interval-sec
+   <td>interval
    </td>
    <td>int32
    </td>
@@ -976,7 +1154,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>open-px
+   <td>openPrice
    </td>
    <td>price
    </td>
@@ -986,7 +1164,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>last-px
+   <td>LastPrice
    </td>
    <td>price
    </td>
@@ -996,7 +1174,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>high-px
+   <td>highPrice
    </td>
    <td>price
    </td>
@@ -1006,7 +1184,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>low-px
+   <td>lowPrice
    </td>
    <td>price
    </td>
@@ -1016,7 +1194,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>num-trades
+   <td>numTrades
    </td>
    <td>int32
    </td>
@@ -1036,7 +1214,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>quote-volume
+   <td>quoteVolume
    </td>
    <td>price
    </td>
@@ -1055,12 +1233,12 @@ Supported intervals: 1 sec, 1 min, 1 hour, 1 day.
 Example:
 
 {
-  "msg" : "candle-query",
+  "msg" : "KlineQuery",
   "ts" : 1669032206998413,
   "seqn" : 177,
-  "start-ts" : 1669032206000000,
-  "end-ts" :   1669032207000000,
-  "interval-sec" : 60,
+  "startTs" : 1669032206000000,
+  "endTs" :   1669032207000000,
+  "interval" : 60,
   "symbol" : "BTCUSDT",
   "limit" : 600
 }
@@ -1084,7 +1262,7 @@ Example:
    </td>
    <td>Y
    </td>
-   <td>Message name: “candle-query”
+   <td>Message name: “KlineQuery”
    </td>
   </tr>
   <tr>
@@ -1102,13 +1280,13 @@ Example:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Client's sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
-   <td>start-ts
+   <td>startTs
    </td>
    <td>timestamp [usec]
    </td>
@@ -1118,7 +1296,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>end-ts
+   <td>endTs
    </td>
    <td>timestamp [usec]
    </td>
@@ -1128,7 +1306,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>interval-sec
+   <td>interval
    </td>
    <td>int32
    </td>
@@ -1166,25 +1344,25 @@ Supported intervals: 1 sec, 1 min, 1 hour, 1 day.
 Example:
 
 {
-  "msg" : "candle-query-reply",
+  "msg" : "KlineQueryReply",
   "ts" : 1669031373575253,
   "seqn" : 277,
   "symbol" : "BTCUSDT",
-  "interval-sec" : 60,
-  "start-ts" : 1618930720000000,
-  "end-ts" : 1618930730000000,
+  "interval" : 60,
+  "startTs" : 1618930720000000,
+  "endTs" : 1618930730000000,
   "limit" : 100,
-  "candles" : [
+  "klines" : [
     {
-      "start-ts" : 1669032206000000,
-      "end-ts" :   1669032207000000,
-      "open-px" : "20201.15",
-      "last-px" : "20202.34",
-      "high-px" : "20205.87",
-      "low-px" : "20199.98",
-      "num-trade" : 53197,
+      "startTs" : 1669032206000000,
+      "endTs" :   1669032207000000,
+      "openPrice" : "20201.15",
+      "lastPrice" : "20202.34",
+      "highPrice" : "20205.87",
+      "lowPrice" : "20199.98",
+      "numTrades" : 53197,
       "volume" : "3909.78543",
-      "quote-volume" : "4760.48"
+      "quoteVolume" : "4760.48"
     },
     ...
     {
@@ -1194,16 +1372,16 @@ Example:
 }
 
 {
-  "msg" : "candle-qery-reply",
+  "msg" : "KlineQueryReply",
   "ts" : 1618930734676777,
   "seqn" : 277,
   "symbol" : "BTCUSDT",
-  "interval-sec" : 60,
-  "start-ts" : 1618930720000000,
-  "end-ts" : 1618930730000000,
+  "interval" : 60,
+  "startTs" : 1618930720000000,
+  "endTs" : 1618930730000000,
   "limit" : 100,
-  "err-code": 91,
-  "err-msg": "Undefined instrument: no symbol matches pattern"
+  "errCode": 91,
+  "errMessage": "Undefined instrument: no symbol matches pattern"
 }
 
 ```
@@ -1226,7 +1404,7 @@ Example:
    </td>
    <td>Y
    </td>
-   <td>Message name: “candle-query-reply”
+   <td>Message name: “KlineQueryReply”
    </td>
   </tr>
   <tr>
@@ -1244,13 +1422,13 @@ Example:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
-   <td>start-ts
+   <td>startTs
    </td>
    <td>timestamp [usec]
    </td>
@@ -1260,7 +1438,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>end-ts
+   <td>endTs
    </td>
    <td>timestamp [usec]
    </td>
@@ -1270,7 +1448,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>interval-sec
+   <td>interval
    </td>
    <td>int32
    </td>
@@ -1300,17 +1478,17 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>candles
+   <td>klines
    </td>
-   <td>array of “candle”
+   <td>array of “Kline”
    </td>
    <td>N
    </td>
-   <td>Array of “candle” messages. The “ts”, “symbol” and “interval-sec” are not provided in an individual elements of array, because they are equal to the corresponding message values
+   <td>Array of “Kline” messages. The “ts”, “symbol” and “interval” are not provided in an individual elements of array, because they are equal to the corresponding message values
    </td>
   </tr>
   <tr>
-   <td>err-code
+   <td>errCode
    </td>
    <td>int32
    </td>
@@ -1320,7 +1498,7 @@ Example:
    </td>
   </tr>
   <tr>
-   <td>err-msg
+   <td>errMessage
    </td>
    <td>string
    </td>
@@ -1338,7 +1516,7 @@ Provides reference/static data for all instruments.
 Example:
 
 {
-  "msg": "symbols",
+  "msg": "Symbols",
   "ts": "1670341183180611",
   "seqn" : 177,
   "pattern": "BTC*"
@@ -1363,7 +1541,7 @@ Example:
    </td>
    <td>Y
    </td>
-   <td>Message name: “symbols”
+   <td>Message name: “Symbols”
    </td>
   </tr>
   <tr>
@@ -1381,7 +1559,7 @@ Example:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
    <td>Client's sequence number (max: 16 digits)
    </td>
@@ -1405,7 +1583,7 @@ Provides reference/static data for all instruments.
 Examples:
 
 {
-  "msg": "symbols-reply",
+  "msg": "SymbolsReply",
   "ts": 1670350617040913,
   "seqn" : 277,
   "pattern" : "BTC*",
@@ -1414,18 +1592,24 @@ Examples:
       "symbol": "BTCUSDT",
       "base": "BTC",
       "quote": "USDT",
+      "tickSize": "0.01",
+      "lotSize": "0.00001",
+      "minNotional": "10.0",
+      "minQty": "0.00001",
+      "maxQty": "100000.0",
+      "maxOrders": 200,
       "type": "spot"
     }
   ]
 }
 
 {
-  "msg": "symbols-reply",
+  "msg": "SymbolsReply",
   "ts": 1670350617040913,
   "seqn" : 277,
   "pattern" : "BU*",
-  "err-code": 91,
-  "err-msg": "Undefined instrument: no symbol matches pattern"
+  "errCode": 91,
+  "errMessage": "Undefined instrument: no symbol matches pattern"
 }
 ```
 
@@ -1447,7 +1631,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message name: “symbols-reply”
+   <td>Message name: “SymbolsReply”
    </td>
   </tr>
   <tr>
@@ -1465,9 +1649,9 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
@@ -1501,6 +1685,66 @@ Examples:
    </td>
   </tr>
   <tr>
+   <td>tickSize
+   </td>
+   <td>double
+   </td>
+   <td>Y
+   </td>
+   <td>Tick size
+   </td>
+  </tr>
+  <tr>
+   <td>lotSize
+   </td>
+   <td>double
+   </td>
+   <td>Y
+   </td>
+   <td>Lot size
+   </td>
+  </tr>
+  <tr>
+   <td>minNotional
+   </td>
+   <td>price
+   </td>
+   <td>Y
+   </td>
+   <td>Min order notional value
+   </td>
+  </tr>
+  <tr>
+   <td>maxQty
+   </td>
+   <td>quantity
+   </td>
+   <td>Y
+   </td>
+   <td>Max order quantity
+   </td>
+  </tr>
+  <tr>
+   <td>minQty
+   </td>
+   <td>quantity
+   </td>
+   <td>Y
+   </td>
+   <td>Min order quantity
+   </td>
+  </tr>
+  <tr>
+   <td>maxOrders
+   </td>
+   <td>int32
+   </td>
+   <td>Y
+   </td>
+   <td>Max open orders for a client
+   </td>
+  </tr>
+  <tr>
    <td>type
    </td>
    <td>instrument type
@@ -1511,7 +1755,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>err-code
+   <td>errCode
    </td>
    <td>int32
    </td>
@@ -1521,113 +1765,13 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>err-msg
+   <td>errMessage
    </td>
    <td>string
    </td>
    <td>N
    </td>
    <td>Error message
-   </td>
-  </tr>
-</table>
-
-## **Indicator message.**
-Supported indicator types: “trend“, “liquidity“, “volatility“, “buble“.
-
-```
-Example:
-
-{
-  "msg" : "indicator",
-  "type" : "trend",
-  "ts" : 1669032206998413,
-  "stream-seqn" : 170167,
-  "seqn" : 265977,
-  "symbol" : "BTCUSDT",
-  "value" : "0.15"
-}
-```
-
-<table>
-  <tr>
-   <td><strong>Name</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Mandatory</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>msg
-   </td>
-   <td>string
-   </td>
-   <td>Y
-   </td>
-   <td>Message name: “indicator”
-   </td>
-  </tr>
-  <tr>
-   <td>type
-   </td>
-   <td>string
-   </td>
-   <td>Y
-   </td>
-   <td>indicator type: “trend“, “liquidity“, “volatility“, “buble“.
-   </td>
-  </tr>
-  <tr>
-   <td>ts
-   </td>
-   <td>timestamp [usec]
-   </td>
-   <td>Y
-   </td>
-   <td>Message generation timestamp (microseconds)
-   </td>
-  </tr>
-  <tr>
-   <td>stream-seqn
-   </td>
-   <td>int64
-   </td>
-   <td>N
-   </td>
-   <td>Market data stream sequence number (max: 16 digits)
-   </td>
-  </tr>
-  <tr>
-   <td>seqn
-   </td>
-   <td>int64
-   </td>
-   <td>N
-   </td>
-   <td>Back-end sequence number (max: 16 digits)
-   </td>
-  </tr>
-  <tr>
-   <td>symbol
-   </td>
-   <td>string
-   </td>
-   <td>Y
-   </td>
-   <td>Symbol
-   </td>
-  </tr>
-  <tr>
-   <td>value
-   </td>
-   <td>double
-   </td>
-   <td>Y
-   </td>
-   <td>Indicator value
    </td>
   </tr>
 </table>
@@ -1638,13 +1782,13 @@ Example:
 Examples:
 
 {
-  "msg" : "error",
+  "msg" : "Error",
   "ts" : 1618930734676777,
   "seqn" : 277,
-  "err-code": 46,
-  "err-msg": "Missing mandatory field: symbol",
-  "ref-msg" : "candle-query",
-  "ref-seqn" : 177
+  "errCode": 46,
+  "errMessage": "Missing mandatory field: symbol",
+  "refMsg" : "KlineQuery",
+  "refSeqn" : 177
 }
 ```
 
@@ -1666,7 +1810,7 @@ Examples:
    </td>
    <td>Y
    </td>
-   <td>Message type: “error”
+   <td>Message type: “Error”
    </td>
   </tr>
   <tr>
@@ -1684,13 +1828,13 @@ Examples:
    </td>
    <td>int64
    </td>
-   <td>N
+   <td>Y
    </td>
-   <td>Back-end sequence number (max: 16 digits)
+   <td>Exchange sequence number (max: 16 digits)
    </td>
   </tr>
   <tr>
-   <td>err-code
+   <td>errCode
    </td>
    <td>int32
    </td>
@@ -1700,7 +1844,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>err-msg
+   <td>errMessage
    </td>
    <td>string
    </td>
@@ -1710,7 +1854,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>ref-msg
+   <td>refMsg
    </td>
    <td>string
    </td>
@@ -1720,7 +1864,7 @@ Examples:
    </td>
   </tr>
   <tr>
-   <td>ref-seqn
+   <td>refSeqn
    </td>
    <td>int64
    </td>
